@@ -53,7 +53,7 @@ public class LoginController {
      * @return
      */
     @PostMapping("/register")
-    public Result register(@RequestBody User user){
+    public Result register(User user){
         userService.add(user);
         return Result.okOf();
     }

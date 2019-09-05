@@ -2,8 +2,10 @@ package com.cf.community.service;
 
 import com.cf.community.dao.RoleDao;
 import com.cf.community.dao.UserDao;
+import com.cf.community.dao.UserRoleDao;
 import com.cf.community.model.Role;
 import com.cf.community.model.User;
+import com.cf.community.model.UserRole;
 import com.cf.community.model.dto.LoginBodyDTO;
 import com.cf.community.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -35,15 +38,30 @@ public class UserService implements UserDetailsService {
     @Autowired
     private BCryptPasswordEncoder encoder;
 
+    @Autowired
+    private UserRoleDao userRoleDao;
+
     /**
      * 新增
      * @param user
      */
+    @Transactional(rollbackFor = Exception.class)
     public void add(User user){
         //加密密码
         user.setPassword(encoder.encode(user.getPassword()));
         user.setCmtCreate(System.currentTimeMillis());
-        userDao.save(user);
+//        user.setRole(1L);//设置为普通用户
+        user.setCmtCreate(System.currentTimeMillis());
+        user.setAvatarUrl("https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg");//设置默认头像
+        user.setState(1); //账号状态，默认1，正常
+
+        User saveUser = userDao.save(user);
+
+        //设置user_role表,默认权限为普通user
+        UserRole userRole = new UserRole();
+        userRole.setUserid(saveUser.getId());
+        userRole.setRoleid(1L);
+        userRoleDao.save(userRole);
     }
 
     /**

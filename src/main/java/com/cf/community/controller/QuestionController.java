@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @CrossOrigin
@@ -21,6 +22,7 @@ public class QuestionController {
 
     @Autowired
     private QuestionService questionService;
+
 
     /**
      * 查找全部问题

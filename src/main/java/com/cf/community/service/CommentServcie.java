@@ -4,16 +4,16 @@ import com.cf.community.dao.CommentDao;
 import com.cf.community.dao.QuestionDao;
 import com.cf.community.dao.UserDao;
 import com.cf.community.model.Comment;
-import com.cf.community.model.Question;
 import com.cf.community.model.User;
 import com.cf.community.model.dto.CommentDTO;
 import com.cf.community.model.dto.UserDTO;
+import com.cf.community.util.JwtUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +36,12 @@ public class CommentServcie {
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private HttpServletRequest request;
+
     /**
      * 查找所有的评论
      * @return
@@ -54,19 +60,6 @@ public class CommentServcie {
      */
     public Comment findById(Long id){
         return commentDao.findById(id).get();
-    }
-
-    /**
-     * 新增
-     * @param comment
-     */
-    public void add(Comment comment, Long parentId){
-        comment.setGmtCreate(System.currentTimeMillis());
-        comment.setParentId(parentId);
-        comment.setCommentator(1L);
-        comment.setLikeCount(0);
-        comment.setType(1);
-        commentDao.save(comment);
     }
 
     /**
@@ -93,10 +86,11 @@ public class CommentServcie {
      */
     @Transactional(rollbackFor = Exception.class)
     public void add(Comment comment) {
+        User user = userDao.findByUsername(jwtUtil.getUsernameFromRequest(request));
         comment.setGmtCreate(System.currentTimeMillis());
         comment.setLikeCount(0);
         comment.setType(1);
-        comment.setCommentator(1L);
+        comment.setCommentator(user.getId());
         questionDao.updateCommentCount(comment.getParentId());
         commentDao.save(comment);
     }

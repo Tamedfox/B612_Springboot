@@ -96,9 +96,10 @@ public class QuestionService {
      * @param question
      */
     public void add(Question question){
+        User user = userDao.findByUsername(jwtUtil.getUsernameFromRequest(request));
         question.setGmtCreate(System.currentTimeMillis());
         question.setGmtModified(question.getGmtCreate());
-        question.setCreator(1L);
+        question.setCreator(user.getId());
         question.setViewCount(0);
         question.setLikeCount(0);
         question.setCommentCount(0);
@@ -180,7 +181,10 @@ public class QuestionService {
     public Page<Question> findQuestionByUser(Integer page,Integer size){
         PageRequest pageRequest = PageRequest.of(page - 1, size);
         User user = userDao.findByUsername(jwtUtil.getUsernameFromRequest(request));
-        return questionDao.findByCreator(user.getId(),pageRequest);
+        Page<Question> questionPage = questionDao.findByCreator(user.getId(), pageRequest);
+        List<Question> list = questionPage.getContent();
+
+        return null;
     }
 
 }
