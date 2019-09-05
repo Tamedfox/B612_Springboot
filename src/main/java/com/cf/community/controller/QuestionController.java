@@ -5,6 +5,7 @@ import com.cf.community.exception.ErrorCode;
 import com.cf.community.model.Question;
 import com.cf.community.model.dto.QuestionDTO;
 import com.cf.community.model.entity.PageResult;
+import com.cf.community.model.entity.QuestionSearch;
 import com.cf.community.model.entity.Result;
 import com.cf.community.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +103,12 @@ public class QuestionController {
         return Result.okOf();
     }
 
-
+    /**
+     * 查找当前用户的问题
+     * @param page
+     * @param size
+     * @return
+     */
     @PreAuthorize("hasAuthority('user')")
     @GetMapping("/myquestion/{page}/{size}")
     public Result findQuestionByUser(@PathVariable Integer page, @PathVariable Integer size){
@@ -111,5 +117,18 @@ public class QuestionController {
         }
         Page<Question> questionPage = questionService.findQuestionByUser(page, size);
         return Result.okOf(new PageResult<>(questionPage.getTotalElements(),questionPage.getContent()));
+    }
+
+    /**
+     * 关键字分页搜索
+     * @param keyword
+     * @param page
+     * @param size
+     * @return
+     */
+    @GetMapping("/search/{keyword}/{page}/{size}")
+    public Result search(@PathVariable String keyword, @PathVariable Integer page, @PathVariable Integer size){
+        Page<QuestionSearch> pageResult = questionService.search(keyword,page,size);
+        return Result.okOf(new PageResult<QuestionSearch>(pageResult.getTotalElements(),pageResult.getContent()));
     }
 }

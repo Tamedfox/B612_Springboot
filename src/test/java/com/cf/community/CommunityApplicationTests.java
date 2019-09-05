@@ -1,15 +1,21 @@
 package com.cf.community;
 
+import com.cf.community.dao.SearchDao;
 import com.cf.community.dao.TagDao;
 import com.cf.community.dao.UserDao;
 import com.cf.community.dao.UserRoleDao;
+import com.cf.community.model.Question;
 import com.cf.community.model.Tag;
+import com.cf.community.model.entity.QuestionSearch;
+import com.cf.community.service.QuestionService;
 import com.cf.community.service.RoleServcie;
 import com.cf.community.service.TagService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.servlet.http.HttpServletRequest;
@@ -83,13 +89,39 @@ public class CommunityApplicationTests {
 //        File file = new File( "G:/images/123.jpg");
 //        System.out.println("OOK?");
 //    }
+//
+//    @Autowired
+//    private TagService tagService;
+//
+//    @Test
+//    public void testDao(){
+//        List<Tag> tags = tagService.findAll();
+//        System.out.println(tags.toString());
+//    }
+
+//    @Autowired
+//    private SearchDao searchDao;
+//
+//    @Test
+//    public void test(){
+////        Iterable<QuestionSearch> all = searchDao.findAll();
+////        all.forEach(System.out::println);
+//        PageRequest pageRequest = PageRequest.of(0, 5);
+//
+//        Page<QuestionSearch> questionSearchPage = searchDao.findByTitleOrDescriptionLike("测试", "测试", pageRequest);
+//        System.out.println(questionSearchPage.getTotalElements());
+//    }
 
     @Autowired
-    private TagService tagService;
+    private QuestionService questionService;
 
     @Test
-    public void testDao(){
-        List<Tag> tags = tagService.findAll();
-        System.out.println(tags.toString());
+    public void test(){
+        Question question = new Question();
+        question.setTitle("rabbitmq测试");
+        question.setDescription("mq测试");
+        questionService.add(question);
+        System.out.println("hello");
     }
+
 }

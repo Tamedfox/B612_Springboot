@@ -1,9 +1,6 @@
 package com.cf.community.service;
 
-import com.cf.community.dao.CommentDao;
-import com.cf.community.dao.QuestionDao;
-import com.cf.community.dao.TagDao;
-import com.cf.community.dao.UserDao;
+import com.cf.community.dao.*;
 import com.cf.community.exception.CustomizeException;
 import com.cf.community.exception.ErrorCode;
 import com.cf.community.model.Question;
@@ -12,9 +9,12 @@ import com.cf.community.model.User;
 import com.cf.community.model.dto.QuestionDTO;
 import com.cf.community.model.dto.UserDTO;
 import com.cf.community.model.entity.PageResult;
+import com.cf.community.model.entity.QuestionSearch;
 import com.cf.community.util.JwtUtil;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -47,6 +47,12 @@ public class QuestionService {
 
     @Autowired
     private TagDao tagDao;
+
+    @Autowired
+    private SearchDao searchDao;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     /**
      * 查找所有问题数据
@@ -103,7 +109,9 @@ public class QuestionService {
         question.setViewCount(0);
         question.setLikeCount(0);
         question.setCommentCount(0);
-        questionDao.save(question);
+        Question questionSave = questionDao.save(question);
+        //异步发送搜索索引
+        this.sendSearchInfo(questionSave,"add");
     }
 
     /**
@@ -120,6 +128,8 @@ public class QuestionService {
         question.setTag(tag);
         question.setGmtModified(System.currentTimeMillis());
         questionDao.save(question);
+        //更新搜索数据
+        this.sendSearchInfo(question,"update");
     }
 
     /**
@@ -131,6 +141,8 @@ public class QuestionService {
         //删除问题，同时删除问题下评论
         questionDao.deleteById(id);
         commentDao.deleteByParentIdEqualsAndTypeEquals(id,1);
+        //更新搜索数据
+        this.sendSearchInfo(questionDao.findById(id).get(),"delete");
     }
 
     /**
@@ -187,4 +199,34 @@ public class QuestionService {
         return null;
     }
 
+    /**
+     * 关键字分页查询
+     * @param keyword
+     * @param page
+     * @param size
+     * @return
+     */
+    public Page<QuestionSearch> search(String keyword, Integer page, Integer size) {
+
+        //使用elasticsearch进行搜索
+        PageRequest pageRequest = PageRequest.of(page - 1, size);
+        Page<QuestionSearch> searchPage = searchDao.findByTitleOrDescriptionLike(keyword, keyword, pageRequest);
+        return searchPage;
+    }
+
+    @Value("${spring.rabbitmq.queue.name}")
+    private String queueName;
+
+    /**
+     * 发送搜索信息
+     * @param question
+     */
+    public void sendSearchInfo(Question question,String action){
+        Map<String,String> map = new HashMap<>();
+        map.put("action",action);
+        map.put("id",String.valueOf(question.getId()));
+        map.put("title",question.getTitle());
+        map.put("description",question.getDescription());
+        rabbitTemplate.convertAndSend(queueName,map);
+    }
 }
