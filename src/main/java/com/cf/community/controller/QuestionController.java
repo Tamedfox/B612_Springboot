@@ -86,9 +86,9 @@ public class QuestionController {
      * @param tag
      * @return
      */
-    @PutMapping(value = "{id}")
-    public Result update(@PathVariable Long id, String title, String description, String tag){
-        questionService.update(id,title,description,tag);
+    @PutMapping(value = "/{id}")
+    public Result update(@PathVariable Long id,@RequestBody Question question){
+        questionService.update(id,question.getTitle(),question.getDescription(),question.getTag());
         return Result.okOf();
     }
 

@@ -194,9 +194,8 @@ public class QuestionService {
         PageRequest pageRequest = PageRequest.of(page - 1, size);
         User user = userDao.findByUsername(jwtUtil.getUsernameFromRequest(request));
         Page<Question> questionPage = questionDao.findByCreator(user.getId(), pageRequest);
-        List<Question> list = questionPage.getContent();
 
-        return null;
+        return questionPage;
     }
 
     /**
