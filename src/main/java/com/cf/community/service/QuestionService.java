@@ -129,7 +129,7 @@ public class QuestionService {
         question.setGmtModified(System.currentTimeMillis());
         questionDao.save(question);
         //更新搜索数据
-        this.sendSearchInfo(question,"update");
+        this.sendSearchInfo(question,"updateAvatarUrl");
     }
 
     /**

@@ -2,6 +2,7 @@ package com.cf.community.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "user")
@@ -72,6 +73,16 @@ public class User implements Serializable {
     private Long role;
 
     private String nickname;
+
+    private Long detail;
+
+    public Long getDetail() {
+        return detail;
+    }
+
+    public void setDetail(Long detail) {
+        this.detail = detail;
+    }
 
     public String getNickname() {
         return nickname;

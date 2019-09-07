@@ -26,4 +26,10 @@ public interface UserDao extends JpaRepository<User,Long>, JpaSpecificationExecu
      */
     public List<User> findByIdIn(Set<Long> ids);
 
+    /**
+     * 查找最新的五个用户
+     * @param state
+     * @return
+     */
+    List<User> findFirst5ByStateOrderByCmtCreateDesc(Integer state);
 }

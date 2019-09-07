@@ -7,7 +7,9 @@ import com.cf.community.model.Role;
 import com.cf.community.model.User;
 import com.cf.community.model.UserRole;
 import com.cf.community.model.dto.LoginBodyDTO;
+import com.cf.community.model.dto.UserDTO;
 import com.cf.community.util.JwtUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Service
@@ -30,7 +33,7 @@ public class UserService implements UserDetailsService {
     private UserDao userDao;
 
     @Autowired
-    private RoleDao roleDao;
+    private HttpServletRequest request;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -40,6 +43,18 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private UserRoleDao userRoleDao;
+
+    /**
+     * 更新头像
+     * @param url
+     */
+    @Transactional
+    public void updateAvatarUrl(String url) {
+        String username = jwtUtil.getUsernameFromRequest(request);
+        User user = userDao.findByUsername(username);
+        user.setAvatarUrl(url);
+        userDao.save(user);
+    }
 
     /**
      * 新增
@@ -66,14 +81,11 @@ public class UserService implements UserDetailsService {
 
     /**
      * 根据用户名对比密码
-     * @param loginBodyDTO
+     * @param username
      * @return
      */
-    public User findByUsername(LoginBodyDTO loginBodyDTO){
-        User user = userDao.findByUsername(loginBodyDTO.getUsername());
-        if( user == null || !encoder.matches(loginBodyDTO.getPassword(),user.getPassword())){
-            throw new UsernameNotFoundException("用户名或密码错误");
-        }
+    public User findByUseranme(String username){
+        User user = userDao.findByUsername(username);
         return user;
     }
 
@@ -97,9 +109,14 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(user.getUsername(),"******", authorities);
     }
 
+    /**
+     * 登录返回用户信息给前端
+     * @param loginBodyDTO
+     * @return
+     */
     public Map login(LoginBodyDTO loginBodyDTO) {
         //验证用户名或密码
-        User userInDB = this.findByUsername(loginBodyDTO);
+        User userInDB = this.findByUseranme(loginBodyDTO.getUsername());
         //获取UserDetail,包含用户名和角色
         UserDetails userDetails = loadUserByUsername(userInDB.getUsername());
         //签发token
@@ -117,12 +134,18 @@ public class UserService implements UserDetailsService {
         map.put("username", userInDB.getUsername());
         map.put("avatarUrl",userInDB.getAvatarUrl());
         map.put("roles", roles);
+        map.put("nickname", userInDB.getNickname());
 
         //后期存入redis
 
         return map;
     }
 
+    /**
+     * 解析token返回用户信息
+     * @param token
+     * @return
+     */
     public UserDetails loadUserByToken(String token) {
 
         String username = jwtUtil.getUsernameByToken(token);
@@ -142,5 +165,16 @@ public class UserService implements UserDetailsService {
         }
 
         return new org.springframework.security.core.userdetails.User(username, "******", authorities);
+    }
+
+    public List<UserDTO> findNewUser(){
+        List<User> userList = userDao.findFirst5ByStateOrderByCmtCreateDesc(1);
+        List<UserDTO> result = new ArrayList<>();
+        for (User user : userList) {
+            UserDTO userDTO = new UserDTO();
+            BeanUtils.copyProperties(user,userDTO);
+            result.add(userDTO);
+        }
+        return result;
     }
 }

@@ -6,10 +6,12 @@ import com.cf.community.dao.UserDao;
 import com.cf.community.dao.UserRoleDao;
 import com.cf.community.model.Question;
 import com.cf.community.model.Tag;
+import com.cf.community.model.UserDetail;
 import com.cf.community.model.entity.QuestionSearch;
 import com.cf.community.service.QuestionService;
 import com.cf.community.service.RoleServcie;
 import com.cf.community.service.TagService;
+import com.cf.community.service.UserDetailService;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +24,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -150,15 +153,27 @@ public class CommunityApplicationTests {
 //    }
 
 
+//    @Autowired
+//    private RedisTemplate redisTemplate;
+//
+//    @Test
+//    public void testRedist(){
+//        redisTemplate.opsForValue().set("test","test数据");
+//        System.out.println("放入数据");
+////        取出
+//        String test = (String) redisTemplate.opsForValue().get("test");
+//        System.out.println(test);
+//    }
+
     @Autowired
-    private RedisTemplate redisTemplate;
+    private UserDetailService userDetailService;
 
     @Test
-    public void testRedist(){
-        redisTemplate.opsForValue().set("test","test数据");
-        System.out.println("放入数据");
-//        取出
-        String test = (String) redisTemplate.opsForValue().get("test");
-        System.out.println(test);
+    public void testUserDetailService(){
+        UserDetail userDetail = new UserDetail();
+        userDetail.setEMail("139113718@qq.com");
+        userDetail.setIndustry("机械");
+        userDetail.setPosition("掉毛");
+        userDetail.setBirthday(new Date());
     }
 }

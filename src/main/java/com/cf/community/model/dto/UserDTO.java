@@ -1,5 +1,6 @@
 package com.cf.community.model.dto;
 
+import com.cf.community.model.UserDetail;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -22,5 +23,7 @@ public class UserDTO implements Serializable {
 //    private Integer state;
 
 //    private Long role;
+    private UserDetail userDetail;
+
 
 }
