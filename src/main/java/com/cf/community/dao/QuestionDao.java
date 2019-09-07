@@ -32,5 +32,12 @@ public interface QuestionDao extends JpaRepository<Question,Long>, JpaSpecificat
     @Query("update Question q set q.likeCount = q.likeCount + 1 where q.id = ?1")
     void updateLikeCount(Long id);
 
+    /**
+     * 分页查超当前用户的博客
+     * @param id
+     * @param pageable
+     * @return
+     */
     Page<Question> findByCreator(Long id, Pageable pageable);
+
 }

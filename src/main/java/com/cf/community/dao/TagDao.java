@@ -3,6 +3,7 @@ package com.cf.community.dao;
 import com.cf.community.model.Tag;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface TagDao extends JpaRepository<Tag,Long>, JpaSpecificationExecuto
      * @return
      */
     List<Tag> findByIdIn(List<Long> list);
+
+//    List<Tag> findFirst5ByOrderByIdDesc();
 }

@@ -81,9 +81,7 @@ public class QuestionController {
     /**
      * 更新
      * @param id
-     * @param title
-     * @param description
-     * @param tag
+     * @param question
      * @return
      */
     @PutMapping(value = "/{id}")

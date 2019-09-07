@@ -228,4 +228,12 @@ public class QuestionService {
         map.put("description",question.getDescription());
         rabbitTemplate.convertAndSend(queueName,map);
     }
+
+    /**
+     * 从数据库中取出假热门数据
+     * @return
+     */
+//    public List<Question> findSix() {
+//        return questionDao.findAll();
+//    }
 }

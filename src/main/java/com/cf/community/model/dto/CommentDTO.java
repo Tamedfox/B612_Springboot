@@ -2,8 +2,10 @@ package com.cf.community.model.dto;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class CommentDTO {
+public class CommentDTO implements Serializable {
 
     private Long id;
 

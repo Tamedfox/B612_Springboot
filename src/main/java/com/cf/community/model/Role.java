@@ -3,6 +3,7 @@ package com.cf.community.model;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * 角色实体类
@@ -10,7 +11,7 @@ import javax.persistence.*;
 @Entity
 @Data
 @Table(name = "role")
-public class Role {
+public class Role implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

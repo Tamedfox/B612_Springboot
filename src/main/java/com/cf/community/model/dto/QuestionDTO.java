@@ -5,13 +5,14 @@ import com.cf.community.model.Tag;
 import com.cf.community.model.User;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * 返回问题DTO
  */
 @Data
-public class QuestionDTO {
+public class QuestionDTO implements Serializable {
 
     //问题
     private Long id;
