@@ -7,6 +7,8 @@ import com.cf.community.model.dto.QuestionDTO;
 import com.cf.community.model.entity.PageResult;
 import com.cf.community.model.entity.QuestionSearch;
 import com.cf.community.model.entity.Result;
+import com.cf.community.model.enums.NotificationEnum;
+import com.cf.community.service.NotificationService;
 import com.cf.community.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,8 @@ public class QuestionController {
     @Autowired
     private QuestionService questionService;
 
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * 查找全部问题
@@ -72,9 +76,17 @@ public class QuestionController {
         return Result.okOf();
     }
 
+    /**
+     * 问题点赞
+     * @param id
+     * @return
+     */
+    @PreAuthorize("hasAuthority('user')")
     @GetMapping("/like/{id}")
     public Result updateLikeCount(@PathVariable Long id){
         Question question = questionService.updateLikeCount(id);
+        //通知消息
+        notificationService.addNotification(question, NotificationEnum.LIKE_QUESTION);
         return Result.okOf(question.getLikeCount());
     }
 
