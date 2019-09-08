@@ -1,6 +1,5 @@
 package com.cf.community.service;
 
-import com.cf.community.dao.CommentDao;
 import com.cf.community.dao.NotificationDao;
 import com.cf.community.dao.QuestionDao;
 import com.cf.community.dao.UserDao;
@@ -13,7 +12,6 @@ import com.cf.community.model.entity.PageResult;
 import com.cf.community.model.enums.NotificationEnum;
 import com.cf.community.model.enums.NotificationStatusEnum;
 import com.cf.community.util.JwtUtil;
-import org.hibernate.engine.jdbc.Size;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

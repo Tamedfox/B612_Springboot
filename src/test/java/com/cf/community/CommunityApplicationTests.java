@@ -101,7 +101,7 @@ public class CommunityApplicationTests {
 //
 //    @Test
 //    public void testDao(){
-//        List<Tag> tags = tagService.findAll();
+//        List<Tag> tags = tagService.findFive();
 //        System.out.println(tags.toString());
 //    }
 
@@ -110,7 +110,7 @@ public class CommunityApplicationTests {
 //
 //    @Test
 //    public void test(){
-////        Iterable<QuestionSearch> all = searchDao.findAll();
+////        Iterable<QuestionSearch> all = searchDao.findFive();
 ////        all.forEach(System.out::println);
 //        PageRequest pageRequest = PageRequest.of(0, 5);
 //

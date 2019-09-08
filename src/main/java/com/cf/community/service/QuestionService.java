@@ -234,6 +234,6 @@ public class QuestionService {
      * @return
      */
 //    public List<Question> findSix() {
-//        return questionDao.findAll();
+//        return questionDao.findFive();
 //    }
 }
