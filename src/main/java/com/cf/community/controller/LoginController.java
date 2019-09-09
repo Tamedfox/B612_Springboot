@@ -7,6 +7,7 @@ import com.cf.community.model.dto.RegisterDTO;
 import com.cf.community.model.entity.Result;
 import com.cf.community.service.UserService;
 import com.cf.community.util.JwtUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,6 +18,7 @@ import java.util.Map;
 @CrossOrigin
 @RestController()
 @RequestMapping("/user")
+@Slf4j
 public class LoginController {
 
     @Autowired

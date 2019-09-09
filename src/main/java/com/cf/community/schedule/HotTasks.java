@@ -48,8 +48,8 @@ public class HotTasks {
     /**
      * 计算热门排名
      */
-    @Scheduled(fixedRate = 100000000)
-//    @Scheduled(cron = "0 0 1 * * * ")//每天凌晨一点执行
+//    @Scheduled(fixedRate = 100000000)
+    @Scheduled(cron = "0 0 1 * * * ")//每天凌晨一点执行
     public void hotTagSchedule(){
         int page = 1;
         int size = 20;

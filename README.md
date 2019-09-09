@@ -1,6 +1,7 @@
 Mybatis Generate生成POJO  
 mvn -Dmybatis.generator.overwrite=true mybatis-generator:generate
 
+后端技术栈
 - Spring Data JPA
 - Springboot
 - Spring Security
@@ -14,6 +15,7 @@ mvn -Dmybatis.generator.overwrite=true mybatis-generator:generate
 - 阿里云短信
 - Spring Task
 
+表结构见community.sql文件
 
 首页--问题展示、热门问题、热门标签、最新注册用户、消息通知、搜索等功能入口
 
