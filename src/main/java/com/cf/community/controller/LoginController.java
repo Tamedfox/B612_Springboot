@@ -3,6 +3,7 @@ package com.cf.community.controller;
 import com.cf.community.exception.ErrorCode;
 import com.cf.community.model.User;
 import com.cf.community.model.dto.LoginBodyDTO;
+import com.cf.community.model.dto.RegisterDTO;
 import com.cf.community.model.entity.Result;
 import com.cf.community.service.UserService;
 import com.cf.community.util.JwtUtil;
@@ -49,13 +50,16 @@ public class LoginController {
 
     /**
      * 注册
-     * @param user
+     * @param registerDTO
      * @return
      */
     @PostMapping("/register")
-    public Result register(User user){
-        userService.add(user);
-        return Result.okOf();
+    public Result register(RegisterDTO registerDTO){
+        if(userService.validPhoneCode(registerDTO.getPhone(),registerDTO.getCode())){
+            userService.add(registerDTO);
+            return Result.okOf();
+        }
+        return Result.errorOf("验证码错误");
     }
 
     /**
@@ -65,6 +69,12 @@ public class LoginController {
     @GetMapping("/logout")
     public Result logout(){
         //留给以后从redis删除
+        return Result.okOf();
+    }
+
+    @GetMapping("/code/{phone}")
+    public Result getPhoneCode(@PathVariable String phone){
+        userService.getPhoneCode(phone);
         return Result.okOf();
     }
 }

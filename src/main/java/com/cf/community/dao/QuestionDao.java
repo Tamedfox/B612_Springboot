@@ -37,4 +37,11 @@ public interface QuestionDao extends JpaRepository<Question,Long>, JpaSpecificat
      */
     Page<Question> findByCreator(Long id, Pageable pageable);
 
+    /**
+     * 分页按时间降序排列所有问题
+     * @param pageable
+     * @return
+     */
+    Page<Question> findAllByOrderByGmtCreateDesc(Pageable pageable);
+
 }

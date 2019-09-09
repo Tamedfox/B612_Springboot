@@ -3,14 +3,23 @@ package com.cf.community.service;
 import com.cf.community.dao.RoleDao;
 import com.cf.community.dao.UserDao;
 import com.cf.community.dao.UserRoleDao;
+import com.cf.community.exception.CustomizeException;
+import com.cf.community.exception.ErrorCode;
 import com.cf.community.model.Role;
 import com.cf.community.model.User;
 import com.cf.community.model.UserRole;
 import com.cf.community.model.dto.LoginBodyDTO;
+import com.cf.community.model.dto.RegisterDTO;
 import com.cf.community.model.dto.UserDTO;
 import com.cf.community.util.JwtUtil;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.RandomUtils;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -44,6 +54,12 @@ public class UserService implements UserDetailsService {
     @Autowired
     private UserRoleDao userRoleDao;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
     /**
      * 更新头像
      * @param url
@@ -58,12 +74,22 @@ public class UserService implements UserDetailsService {
 
     /**
      * 新增
-     * @param user
+     * @param registerDTO
      */
     @Transactional(rollbackFor = Exception.class)
-    public void add(User user){
+    public void add(RegisterDTO registerDTO){
+        //验证用户名唯一性
+        if(!validUsername(registerDTO.getUsername())){
+            throw new CustomizeException(ErrorCode.REPEAT_USERNAME);
+        }
+        if(!validNickName(registerDTO.getNickname())){
+            throw new CustomizeException(ErrorCode.REPEAT_NICKNAME);
+        }
+
+        User user = new User();
+        BeanUtils.copyProperties(registerDTO,user);
         //加密密码
-        user.setPassword(encoder.encode(user.getPassword()));
+        user.setPassword(encoder.encode(registerDTO.getPassword()));
         user.setCmtCreate(System.currentTimeMillis());
 //        user.setRole(1L);//设置为普通用户
         user.setCmtCreate(System.currentTimeMillis());
@@ -77,6 +103,22 @@ public class UserService implements UserDetailsService {
         userRole.setUserid(saveUser.getId());
         userRole.setRoleid(1L);
         userRoleDao.save(userRole);
+    }
+
+    private boolean validNickName(String nickname) {
+        User user = userDao.findByNickname(nickname);
+        if(user != null){
+            return false;
+        }
+        return true;
+    }
+
+    private Boolean validUsername(String username) {
+        User user = userDao.findByUsername(username);
+        if(user != null){
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -117,6 +159,10 @@ public class UserService implements UserDetailsService {
     public Map login(LoginBodyDTO loginBodyDTO) {
         //验证用户名或密码
         User userInDB = this.findByUseranme(loginBodyDTO.getUsername());
+        if(userInDB == null || !encoder.matches(loginBodyDTO.getPassword(),userInDB.getPassword())){
+            throw new CustomizeException(ErrorCode.LOGIN_ERROR);
+        }
+
         //获取UserDetail,包含用户名和角色
         UserDetails userDetails = loadUserByUsername(userInDB.getUsername());
         //签发token
@@ -167,6 +213,10 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(username, "******", authorities);
     }
 
+    /**
+     * 获取最新用户top5
+     * @return
+     */
     public List<UserDTO> findNewUser(){
         List<User> userList = userDao.findFirst5ByStateOrderByCmtCreateDesc(1);
         List<UserDTO> result = new ArrayList<>();
@@ -176,5 +226,42 @@ public class UserService implements UserDetailsService {
             result.add(userDTO);
         }
         return result;
+    }
+
+    @Value("${spring.rabbitmq.queue.smsQueueName}")
+    private String smsQueueName;
+
+    /**
+     * 生成验证码
+     * @param phone
+     */
+    public void getPhoneCode(String phone) {
+        String code = String.valueOf((long) (Math.random() * 1000000));
+        System.out.println("code为"+code);
+        redisTemplate.opsForHash().put("smsCode",phone,code);
+        redisTemplate.expire("smsCode",2, TimeUnit.HOURS);
+
+        //使用rabbitMq发送消息
+        Map<String,String> map = new HashMap<>();
+        map.put("phone",phone);
+        map.put("code",code);
+        rabbitTemplate.convertAndSend(smsQueueName,map);
+
+//        String smsCode = (String) redisTemplate.boundHashOps("smsCode").get(phone);
+//        System.out.println("取出的code" + smsCode);
+    }
+
+    /**
+     * 根据手机号验证
+     * @param phone
+     * @param code
+     * @return
+     */
+    public Boolean validPhoneCode(String phone,String code){
+        String smsCodeInRedis = (String) redisTemplate.boundHashOps("smsCode").get(phone);
+        if(!StringUtils.isBlank(smsCodeInRedis)){
+            return StringUtils.equals(smsCodeInRedis, code);
+        }
+        return false;
     }
 }

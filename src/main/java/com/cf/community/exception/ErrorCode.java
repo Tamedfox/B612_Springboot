@@ -9,7 +9,9 @@ public enum ErrorCode {
     NOT_FOUND(1004,"未找到相关资源" ),
     PARAMS_ERROR(1005,"请求参数错误" ),
     FILE_FORMAT_ERROR(1006,"文件格式错误" ),
-    UPLOAD_FAIL(1007,"写入文件失败" );
+    UPLOAD_FAIL(1007,"写入文件失败" ),
+    REPEAT_USERNAME(1008,"重复用户名" ),
+    REPEAT_NICKNAME(1009,"重复昵称" );
 
     private Integer code;
     private String message;
@@ -26,4 +28,5 @@ public enum ErrorCode {
         this.code = code;
         this.message = message;
     }
+
 }

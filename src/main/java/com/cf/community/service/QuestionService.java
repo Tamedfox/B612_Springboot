@@ -153,7 +153,7 @@ public class QuestionService {
      */
     public PageResult<QuestionDTO> findByPage(Integer page, Integer size) {
         PageRequest pageRequest = PageRequest.of(page-1, size);
-        Page<Question> questionPages = questionDao.findAll(pageRequest);
+        Page<Question> questionPages = questionDao.findAllByOrderByGmtCreateDesc(pageRequest);
         List<Question> questionList = questionPages.getContent();
         //获取user的列表
         Set<Long> userSets = questionList.stream().map(question -> question.getCreator()).collect(Collectors.toSet());
@@ -214,7 +214,7 @@ public class QuestionService {
     }
 
     @Value("${spring.rabbitmq.queue.name}")
-    private String queueName;
+    private String searchQueueName;
 
     /**
      * 发送搜索信息
@@ -226,7 +226,7 @@ public class QuestionService {
         map.put("id",String.valueOf(question.getId()));
         map.put("title",question.getTitle());
         map.put("description",question.getDescription());
-        rabbitTemplate.convertAndSend(queueName,map);
+        rabbitTemplate.convertAndSend(searchQueueName,map);
     }
 
     /**

@@ -32,4 +32,6 @@ public interface UserDao extends JpaRepository<User,Long>, JpaSpecificationExecu
      * @return
      */
     List<User> findFirst5ByStateOrderByCmtCreateDesc(Integer state);
+
+    User findByNickname(String nickname);
 }

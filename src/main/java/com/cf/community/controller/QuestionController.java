@@ -96,6 +96,7 @@ public class QuestionController {
      * @param question
      * @return
      */
+    @PreAuthorize("hasAuthority('user')")
     @PutMapping(value = "/{id}")
     public Result update(@PathVariable Long id,@RequestBody Question question){
         questionService.update(id,question.getTitle(),question.getDescription(),question.getTag());
@@ -107,6 +108,7 @@ public class QuestionController {
      * @param id
      * @return
      */
+    @PreAuthorize("hasAuthority('user')")
     @DeleteMapping(value= "{id}")
     public Result delete(@PathVariable Long id){
         questionService.delete(id);
@@ -139,6 +141,6 @@ public class QuestionController {
     @GetMapping("/search/{keyword}/{page}/{size}")
     public Result search(@PathVariable String keyword, @PathVariable Integer page, @PathVariable Integer size){
         Page<QuestionSearch> pageResult = questionService.search(keyword,page,size);
-        return Result.okOf(new PageResult<QuestionSearch>(pageResult.getTotalElements(),pageResult.getContent()));
+        return Result.okOf(new PageResult<>(pageResult.getTotalElements(),pageResult.getContent()));
     }
 }

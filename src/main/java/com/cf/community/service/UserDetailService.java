@@ -49,6 +49,9 @@ public class UserDetailService {
     public UserDTO findOne() {
         String username = jwtUtil.getUsernameFromRequest(request);
         User user = userDao.findByUsername(username);
+        if(user.getDetail() == null){
+            return null;
+        }
         UserDetail userDetail = userDetailDao.findById(user.getDetail()).get();
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user,userDTO);
@@ -56,6 +59,10 @@ public class UserDetailService {
         return userDTO;
     }
 
+    /**
+     * 更新用户信息
+     * @param userDetailDTO
+     */
     @Transactional
     public void updateDetail(UserDetailDTO userDetailDTO) {
         String username = jwtUtil.getUsernameFromRequest(request);

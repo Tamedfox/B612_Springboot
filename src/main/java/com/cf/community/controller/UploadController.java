@@ -6,6 +6,7 @@ import com.cf.community.service.UploadService;
 import com.cf.community.service.UserService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +25,7 @@ public class UploadController {
      * @param file
      * @return
      */
+    @PreAuthorize("hasAuthority('user')")
     @PostMapping("/image/upload")
     public Result imageUpload(MultipartFile file){
         if(file == null){
@@ -43,6 +45,7 @@ public class UploadController {
      * @param file
      * @return
      */
+    @PreAuthorize("hasAuthority('user')")
     @PostMapping("/avatar/upload")
     public Result avatarUpload(MultipartFile file){
         if(file == null){

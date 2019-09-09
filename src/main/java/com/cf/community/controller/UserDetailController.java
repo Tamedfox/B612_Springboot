@@ -10,6 +10,7 @@ import com.cf.community.service.UserService;
 import com.cf.community.util.JwtUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,21 +23,13 @@ public class UserDetailController {
     @Autowired
     private UserDetailService userDetailService;
 
-    @Autowired
-    private HttpServletRequest request;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private UserService userService;
-
     @GetMapping()
     public Result findOne(){
         UserDTO userDTO = userDetailService.findOne();
         return Result.okOf(userDTO);
     }
 
+    @PreAuthorize("hasAuthority('user')")
     @PutMapping()
     public Result update(@RequestBody UserDetailDTO userDetailDTO){
         userDetailService.updateDetail(userDetailDTO);
